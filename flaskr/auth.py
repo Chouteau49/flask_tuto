@@ -1,3 +1,4 @@
+"""Import functools"""
 import functools
 
 from flask import (
@@ -19,10 +20,11 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 @bp.route("/register", methods=("GET", "POST"))
 def register():
+    """register"""
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        db = get_db()
+        db_connexion = get_db()
         error = None
 
         if not username:
@@ -32,12 +34,12 @@ def register():
 
         if error is None:
             try:
-                db.execute(
+                db_connexion.execute(
                     "INSERT INTO user (username, password) VALUES (?, ?)",
                     (username, generate_password_hash(password)),
                 )
-                db.commit()
-            except db.IntegrityError:
+                db_connexion.commit()
+            except db_connexion.IntegrityError:
                 error = f"User {username} is already registered."
             else:
                 return redirect(url_for("auth.login"))
@@ -49,12 +51,13 @@ def register():
 
 @bp.route("/login", methods=("GET", "POST"))
 def login():
+    """login"""
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        db = get_db()
+        db_connexion = get_db()
         error = None
-        user = db.execute(
+        user = db_connexion.execute(
             "SELECT * FROM user WHERE username = ?", (username,)
         ).fetchone()
 
@@ -75,6 +78,7 @@ def login():
 
 @bp.before_app_request
 def load_logged_in_user():
+    """load_logged_in_user"""
     user_id = session.get("user_id")
 
     if user_id is None:
@@ -87,11 +91,13 @@ def load_logged_in_user():
 
 @bp.route("/logout")
 def logout():
+    """logout"""
     session.clear()
     return redirect(url_for("index"))
 
 
 def login_required(view):
+    """login_required"""
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:

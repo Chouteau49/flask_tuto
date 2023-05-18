@@ -1,9 +1,25 @@
+"""_summary_
+
+Returns:
+    _type_: _description_
+"""
 import os
 
 from flask import Flask
+from . import db
+from . import auth
+from . import blog
 
 
 def create_app(test_config=None):
+    """_summary_
+
+    Args:
+        test_config (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
@@ -29,15 +45,9 @@ def create_app(test_config=None):
     def hello():
         return "Hello, World!"
 
-    from . import db
-
     db.init_app(app)
 
-    from . import auth
-
     app.register_blueprint(auth.bp)
-
-    from . import blog
 
     app.register_blueprint(blog.bp)
     app.add_url_rule("/", endpoint="index")
