@@ -58,7 +58,7 @@ def create():
     return render_template("blog/create.html")
 
 
-def get_post(identifiant, check_author=True):
+def get_post(id, check_author=True):
     """_summary_
 
     Args:
@@ -74,13 +74,13 @@ def get_post(identifiant, check_author=True):
             "SELECT p.id, title, body, created, author_id, username"
             " FROM post p JOIN user u ON p.author_id = u.id"
             " WHERE p.id = ?",
-            (identifiant,),
+            (id,),
         )
         .fetchone()
     )
 
     if post is None:
-        abort(404, f"Post id {identifiant} doesn't exist.")
+        abort(404, f"Post id {id} doesn't exist.")
 
     if check_author and post["author_id"] != g.user["id"]:
         abort(403)
@@ -90,7 +90,7 @@ def get_post(identifiant, check_author=True):
 
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
 @login_required
-def update(identifiant):
+def update(id):
     """_summary_
 
     Args:
@@ -99,7 +99,7 @@ def update(identifiant):
     Returns:
         _type_: _description_
     """
-    post = get_post(identifiant)
+    post = get_post(id)
 
     if request.method == "POST":
         title = request.form["title"]
@@ -114,7 +114,7 @@ def update(identifiant):
         else:
             db_connexion = get_db()
             db_connexion.execute(
-                "UPDATE post SET title = ?, body = ? WHERE id = ?", (title, body, identifiant)
+                "UPDATE post SET title = ?, body = ? WHERE id = ?", (title, body, id)
             )
             db_connexion.commit()
             return redirect(url_for("blog.index"))
@@ -124,7 +124,7 @@ def update(identifiant):
 
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required
-def delete(identifiant):
+def delete(id):
     """_summary_
 
     Args:
@@ -133,8 +133,8 @@ def delete(identifiant):
     Returns:
         _type_: _description_
     """
-    get_post(identifiant)
+    get_post(id)
     db_connexion = get_db()
-    db_connexion.execute("DELETE FROM post WHERE id = ?", (identifiant,))
+    db_connexion.execute("DELETE FROM post WHERE id = ?", (id,))
     db_connexion.commit()
     return redirect(url_for("blog.index"))

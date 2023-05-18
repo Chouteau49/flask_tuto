@@ -30,6 +30,7 @@ def close_db(error=None):
     Args:
         e (_type_, optional): _description_. Defaults to None.
     """
+    print(error)
     db_connexion = g.pop("db", None)
 
     if db_connexion is not None:
