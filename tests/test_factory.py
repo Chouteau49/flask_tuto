@@ -1,3 +1,4 @@
+""" Import """
 from flaskr import create_app
 
 
@@ -8,5 +9,10 @@ def test_config():
 
 
 def test_hello(client):
+    """_summary_
+
+    Args:
+        client (_type_): _description_
+    """
     response = client.get("/hello")
     assert response.data == b"Hello, World!"

@@ -1,9 +1,16 @@
+""" Import """
 import pytest
 
 from flaskr.db import get_db
 
 
 def test_index(client, auth):
+    """_summary_
+
+    Args:
+        client (_type_): _description_
+        auth (_type_): _description_
+    """
     response = client.get("/")
     assert b"Log In" in response.data
     assert b"Register" in response.data
@@ -18,16 +25,29 @@ def test_index(client, auth):
 
 @pytest.mark.parametrize("path", ("/create", "/1/update", "/1/delete"))
 def test_login_required(client, path):
+    """_summary_
+
+    Args:
+        client (_type_): _description_
+        path (_type_): _description_
+    """
     response = client.post(path)
     assert response.headers["Location"] == "/auth/login"
 
 
 def test_author_required(app, client, auth):
+    """_summary_
+
+    Args:
+        app (_type_): _description_
+        client (_type_): _description_
+        auth (_type_): _description_
+    """
     # change the post author to another user
     with app.app_context():
-        db = get_db()
-        db.execute("UPDATE post SET author_id = 2 WHERE id = 1")
-        db.commit()
+        db_connexion = get_db()
+        db_connexion.execute("UPDATE post SET author_id = 2 WHERE id = 1")
+        db_connexion.commit()
 
     auth.login()
     # current user can't modify other user's post
@@ -39,45 +59,80 @@ def test_author_required(app, client, auth):
 
 @pytest.mark.parametrize("path", ("/2/update", "/2/delete"))
 def test_exists_required(client, auth, path):
+    """_summary_
+
+    Args:
+        client (_type_): _description_
+        auth (_type_): _description_
+        path (_type_): _description_
+    """
     auth.login()
     assert client.post(path).status_code == 404
 
 
 def test_create(client, auth, app):
+    """_summary_
+
+    Args:
+        client (_type_): _description_
+        auth (_type_): _description_
+        app (_type_): _description_
+    """
     auth.login()
     assert client.get("/create").status_code == 200
     client.post("/create", data={"title": "created", "body": ""})
 
     with app.app_context():
-        db = get_db()
-        count = db.execute("SELECT COUNT(id) FROM post").fetchone()[0]
+        db_connexion = get_db()
+        count = db_connexion.execute("SELECT COUNT(id) FROM post").fetchone()[0]
         assert count == 2
 
 
 def test_update(client, auth, app):
+    """_summary_
+
+    Args:
+        client (_type_): _description_
+        auth (_type_): _description_
+        app (_type_): _description_
+    """
     auth.login()
     assert client.get("/1/update").status_code == 200
     client.post("/1/update", data={"title": "updated", "body": ""})
 
     with app.app_context():
-        db = get_db()
-        post = db.execute("SELECT * FROM post WHERE id = 1").fetchone()
+        db_connexion = get_db()
+        post = db_connexion.execute("SELECT * FROM post WHERE id = 1").fetchone()
         assert post["title"] == "updated"
 
 
 @pytest.mark.parametrize("path", ("/create", "/1/update"))
 def test_create_update_validate(client, auth, path):
+    """_summary_
+
+    Args:
+        client (_type_): _description_
+        auth (_type_): _description_
+        path (_type_): _description_
+    """
     auth.login()
     response = client.post(path, data={"title": "", "body": ""})
     assert b"Title is required." in response.data
 
 
 def test_delete(client, auth, app):
+    """_summary_
+
+    Args:
+        client (_type_): _description_
+        auth (_type_): _description_
+        app (_type_): _description_
+    """
     auth.login()
     response = client.post("/1/delete")
     assert response.headers["Location"] == "/"
 
     with app.app_context():
-        db = get_db()
-        post = db.execute("SELECT * FROM post WHERE id = 1").fetchone()
+        db_connexion = get_db()
+        post = db_connexion.execute("SELECT * FROM post WHERE id = 1").fetchone()
         assert post is None

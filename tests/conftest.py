@@ -1,3 +1,11 @@
+"""_summary_
+
+Returns:
+    _type_: _description_
+
+Yields:
+    _type_: _description_
+"""
 import os
 import tempfile
 
@@ -45,18 +53,42 @@ def runner(app):
 
 
 class AuthActions:
+    """_summary_"""
+
     def __init__(self, client):
         self._client = client
 
     def login(self, username="test", password="test"):
+        """_summary_
+
+        Args:
+            username (str, optional): _description_. Defaults to "test".
+            password (str, optional): _description_. Defaults to "test".
+
+        Returns:
+            _type_: _description_
+        """
         return self._client.post(
             "/auth/login", data={"username": username, "password": password}
         )
 
     def logout(self):
+        """_summary_
+
+        Returns:
+            _type_: _description_
+        """
         return self._client.get("/auth/logout")
 
 
 @pytest.fixture
 def auth(client):
+    """_summary_
+
+    Args:
+        client (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     return AuthActions(client)

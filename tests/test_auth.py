@@ -1,3 +1,4 @@
+""" Import """
 import pytest
 from flask import g
 from flask import session
@@ -6,6 +7,12 @@ from flaskr.db import get_db
 
 
 def test_register(client, app):
+    """_summary_
+
+    Args:
+        client (_type_): _description_
+        app (_type_): _description_
+    """
     # test that viewing the page renders without template errors
     assert client.get("/auth/register").status_code == 200
 
@@ -30,6 +37,14 @@ def test_register(client, app):
     ),
 )
 def test_register_validate_input(client, username, password, message):
+    """_summary_
+
+    Args:
+        client (_type_): _description_
+        username (_type_): _description_
+        password (_type_): _description_
+        message (_type_): _description_
+    """
     response = client.post(
         "/auth/register", data={"username": username, "password": password}
     )
@@ -37,6 +52,12 @@ def test_register_validate_input(client, username, password, message):
 
 
 def test_login(client, auth):
+    """_summary_
+
+    Args:
+        client (_type_): _description_
+        auth (_type_): _description_
+    """
     # test that viewing the page renders without template errors
     assert client.get("/auth/login").status_code == 200
 
@@ -57,11 +78,25 @@ def test_login(client, auth):
     (("a", "test", b"Incorrect username."), ("test", "a", b"Incorrect password.")),
 )
 def test_login_validate_input(auth, username, password, message):
+    """_summary_
+
+    Args:
+        auth (_type_): _description_
+        username (_type_): _description_
+        password (_type_): _description_
+        message (_type_): _description_
+    """
     response = auth.login(username, password)
     assert message in response.data
 
 
 def test_logout(client, auth):
+    """_summary_
+
+    Args:
+        client (_type_): _description_
+        auth (_type_): _description_
+    """
     auth.login()
 
     with client:
